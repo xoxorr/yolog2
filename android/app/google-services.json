@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "25916358077",
+    "project_id": "yolog2",
+    "storage_bucket": "yolog2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:25916358077:android:3e56f09a5a9461b23026d4",
+        "android_client_info": {
+          "package_name": "com.example.yolog2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGIU1lglXhv23aciTqIW6Z4Eu35cz4drM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
