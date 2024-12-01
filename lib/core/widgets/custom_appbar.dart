@@ -86,7 +86,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                           ),
                           filled: true,
                           fillColor: Theme.of(context).colorScheme.surface,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 16),
                         ),
                         onSubmitted: onSearch,
                       ),
@@ -105,12 +106,17 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     if (authProvider.currentUser != null) {
                       return PopupMenuButton(
                         icon: CircleAvatar(
-                          backgroundImage: authProvider.currentUser?.photoURL != null
-                              ? NetworkImage(authProvider.currentUser!.photoURL!)
-                              : null,
+                          backgroundImage:
+                              authProvider.currentUser?.photoURL != null
+                                  ? NetworkImage(
+                                      authProvider.currentUser!.photoURL!)
+                                  : null,
                           child: authProvider.currentUser?.photoURL == null
                               ? Text(
-                                  authProvider.currentUser?.displayName?.substring(0, 1).toUpperCase() ?? '?',
+                                  authProvider.currentUser?.displayName
+                                          ?.substring(0, 1)
+                                          .toUpperCase() ??
+                                      '?',
                                 )
                               : null,
                         ),
