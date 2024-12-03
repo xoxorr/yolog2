@@ -1,16 +1,43 @@
 # yolog2
 
-A new Flutter project.
+---
+# 자동 로그인 </br>
 
-## Getting Started
+# 비밀번호 재설정 </br>
 
-This project is a starting point for a Flutter application.
+# 이메일 인증 재발송 </br>
 
-A few resources to get you started if this is your first Flutter project:
+# 소셜 로그인 확장 </br>  
+##	구글 로그인 외에 다른 소셜 로그인 추가 (애플, 페이스북 등) </br>
+##	소셜 로그인 시 사용자 정보 Firestore 저장 </br>
+	
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+# 로그인 시도 제한 </br>
+##	로그인 시도 횟수 제한
+##  로그인 시도 횟수 초과 시 일정 시간 동안 로그인 차단 </br>
+##	로그인 차단 시 이메일로 알림 </br>
+##	로그인 차단 해제 후 재시도 </br>
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+# 프로필 기능 </br>
+lib/features/profile/models </br>
+lib/features/profile/screens </br>
+lib/features/profile/service </br>
+
+</br>
+
+1. 히스토리 탭 </br>    
+2. 통계 탭 </br>
+3. 설정 탭 </br>
+
+### 추가 수정 및 추가 구현 사항
+- 글꼴 크기 조절
+- 프로필 사진 추가
+- 프로필 사진 클릭 시 프로필 수정 페이지로 이동
+- 사이드바 크기 조절
+- 프로필 수정 페이지 추가
+- 프로필 수정 페이지 디자인 수정
+- 프로필 수정 페이지 또한 사이드바 형식으로 구현 그리고 프로필 수정 후 저장 버튼 추가
+- 프로필 수정 페이지 커스텀 앱바 추가 및 로고로 뒤로가기
+---

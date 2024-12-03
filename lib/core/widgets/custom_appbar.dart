@@ -12,6 +12,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Function(String)? onSearch;
   final bool showSearchBox;
   final double elevation;
+  final VoidCallback? onTap;
 
   const CustomAppBar({
     super.key,
@@ -21,6 +22,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onSearch,
     this.showSearchBox = true,
     this.elevation = 0,
+    this.onTap,
   });
 
   @override
@@ -58,17 +60,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             title: Row(
               children: [
                 GestureDetector(
-                  onTap: () {
-                    if (ModalRoute.of(context)?.settings.name !=
-                            AppRoutes.initial &&
-                        ModalRoute.of(context)?.settings.name !=
-                            AppRoutes.home) {
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                        AppRoutes.initial,
-                        (route) => false,
-                      );
-                    }
-                  },
+                  onTap: onTap,
                   child: Text(
                     title,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -128,6 +120,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 builder: (context, authProvider, _) {
                   if (authProvider.currentUser != null) {
                     return PopupMenuButton(
+                      offset: const Offset(0, 8),
+                      position: PopupMenuPosition.under,
                       icon: CircleAvatar(
                         backgroundImage: authProvider.currentUser?.photoURL !=
                                 null
@@ -145,22 +139,47 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       itemBuilder: (context) => [
                         const PopupMenuItem(
                           value: 'profile',
-                          child: Text('프로필'),
+                          child: Row(
+                            children: [
+                              Icon(Icons.person_outline),
+                              SizedBox(width: 8),
+                              Text('프로필'),
+                            ],
+                          ),
                         ),
                         const PopupMenuItem(
                           value: 'settings',
-                          child: Text('설정'),
+                          child: Row(
+                            children: [
+                              Icon(Icons.settings_outlined),
+                              SizedBox(width: 8),
+                              Text('설정'),
+                            ],
+                          ),
                         ),
                         const PopupMenuItem(
                           value: 'logout',
-                          child: Text('로그아웃'),
+                          child: Row(
+                            children: [
+                              Icon(Icons.logout_outlined),
+                              SizedBox(width: 8),
+                              Text('로그아웃'),
+                            ],
+                          ),
                         ),
                       ],
                       onSelected: (value) {
-                        if (value == 'logout') {
-                          authProvider.signOut();
+                        switch (value) {
+                          case 'profile':
+                            Navigator.pushNamed(context, AppRoutes.profile);
+                            break;
+                          case 'settings':
+                            // TODO: 설정 화면으로 이동
+                            break;
+                          case 'logout':
+                            authProvider.signOut();
+                            break;
                         }
-                        // TODO: 다른 메뉴 항목 처리
                       },
                     );
                   } else {

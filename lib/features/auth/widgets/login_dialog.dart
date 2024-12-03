@@ -290,10 +290,45 @@ class _LoginDialogState extends State<LoginDialog> {
                 ElevatedButton(
                   onPressed: _isLoading
                       ? null
-                      : () {
-                          Navigator.of(context).pop();
-                          Provider.of<AuthProvider>(context, listen: false)
-                              .signInWithGoogle();
+                      : () async {
+                          setState(() => _isLoading = true);
+                          try {
+                            await context
+                                .read<AuthProvider>()
+                                .signInWithGoogle();
+
+                            // 에러가 없고 사용자가 있으면 성공
+                            if (context.read<AuthProvider>().error == null &&
+                                context.read<AuthProvider>().currentUser !=
+                                    null) {
+                              if (mounted) {
+                                Navigator.of(context).pop(); // 성공 시에만 다이얼로그 닫기
+                              }
+                            } else if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    context.read<AuthProvider>().error ??
+                                        '로그인에 실패했습니다.',
+                                  ),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(e.toString()),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          } finally {
+                            if (mounted) {
+                              setState(() => _isLoading = false);
+                            }
+                          }
                         },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
@@ -302,17 +337,27 @@ class _LoginDialogState extends State<LoginDialog> {
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset(
-                        'assets/images/google_logo.png',
-                        height: 24,
-                      ),
-                      const SizedBox(width: 12),
-                      const Text('Google로 계속하기'),
-                    ],
-                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              'assets/images/google_logo.png',
+                              height: 24,
+                            ),
+                            const SizedBox(width: 12),
+                            const Text('Google로 계속하기'),
+                          ],
+                        ),
                 ),
                 const SizedBox(height: 16),
                 Row(

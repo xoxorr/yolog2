@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../features/home/screens/home_screen.dart';
 import '../../features/post/screens/create_post_screen.dart';
+import '../../features/profile/screens/profile_screen.dart';
 
 class AppRoutes {
   static const String initial = '/';
   static const String home = '/home';
+  static const String profile = '/profile';
   static const String login = '/login';
   static const String signup = '/signup';
   static const String forgotPassword = '/forgot-password';
@@ -14,6 +16,7 @@ class AppRoutes {
     return {
       initial: (context) => const HomeScreen(),
       home: (context) => const HomeScreen(),
+      profile: (context) => const ProfileScreen(),
       login: (context) => const HomeScreen(),
       signup: (context) => const HomeScreen(),
       forgotPassword: (context) => const HomeScreen(),

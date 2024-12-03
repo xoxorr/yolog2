@@ -9,6 +9,10 @@ import 'features/post/services/post_service.dart';
 import 'features/post/repositories/post_repository.dart';
 import 'firebase_options.dart';
 import 'features/auth/providers/auth_provider.dart' as app_auth;
+import 'features/profile/services/profile_service.dart';
+
+// 전역 navigatorKey 추가
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +39,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => app_auth.AuthProvider(),
         ),
+        ChangeNotifierProvider(
+          create: (_) => ProfileService(),
+        ),
         Provider<PostRepository>(
           create: (_) => PostRepository(),
         ),
@@ -48,7 +55,9 @@ class MyApp extends StatelessWidget {
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
           return MaterialApp(
+            navigatorKey: navigatorKey, // navigatorKey 추가
             title: 'Yolog',
+            debugShowCheckedModeBanner: false,
             theme: ThemeData(
               useMaterial3: true,
               fontFamily: 'Pretendard',

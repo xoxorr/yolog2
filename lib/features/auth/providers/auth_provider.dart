@@ -1,8 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/routes/app_routes.dart';
+import '../../../main.dart';
 
 class AuthProvider extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -176,11 +179,73 @@ class AuthProvider extends ChangeNotifier {
       _error = null;
       notifyListeners();
 
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        _error = '구글 로그인이 취소되었습니다.';
-        return;
+      // 웹 플랫폼 체크
+      if (kIsWeb) {
+        // 웹용 Google 로그인
+        GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        await _auth.signInWithPopup(googleProvider);
+      } else {
+        // 모바일용 Google 로그인 (기존 코드)
+        final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+        if (googleUser == null) {
+          _error = '구글 로그인이 취소되었습니다.';
+          return;
+        }
+
+        // 구글 인증 정보 가져오기
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+
+        // Firebase 인증
+        final userCredential = await _auth.signInWithCredential(credential);
+        final user = userCredential.user;
+
+        if (user != null) {
+          // 프로필 이미지 URL 최적화
+          String? optimizedPhotoURL = user.photoURL;
+          if (optimizedPhotoURL != null &&
+              optimizedPhotoURL.contains('googleusercontent.com')) {
+            // Google 프로필 이미지 URL을 더 짧은 버전으로 최적화
+            optimizedPhotoURL = optimizedPhotoURL.split('=')[0] + '=s96-c';
+          }
+
+          await _firestore.collection('users').doc(user.uid).set({
+            'email': user.email,
+            'displayName': user.displayName,
+            'photoURL': optimizedPhotoURL, // 최적화된 URL 사용
+            'lastLogin': FieldValue.serverTimestamp(),
+            'provider': 'google',
+            'emailVerified': true,
+            'createdAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+
+          _user = user;
+          _resetLoginAttempts();
+        }
       }
+    } catch (e) {
+      print('Google sign in error: $e'); // 에러 로깅 추가
+      _error = '구글 로그인 중 오류가 발생했습니다: $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // 구글 로그인 상태 확인
+  Future<bool> isGoogleSignedIn() async {
+    return await _googleSignIn.isSignedIn();
+  }
+
+  // 구글 계정 연동
+  Future<void> linkGoogleAccount() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return;
 
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
@@ -189,11 +254,17 @@ class AuthProvider extends ChangeNotifier {
         idToken: googleAuth.idToken,
       );
 
-      await _auth.signInWithCredential(credential);
+      final user = _auth.currentUser;
+      if (user != null) {
+        await user.linkWithCredential(credential);
+
+        // Firestore 업데이트
+        await _firestore.collection('users').doc(user.uid).update({
+          'linkedProviders': FieldValue.arrayUnion(['google']),
+        });
+      }
     } catch (e) {
-      _error = e.toString();
-    } finally {
-      _isLoading = false;
+      _error = '계정 연동 중 오류가 발생했습니다: $e';
       notifyListeners();
     }
   }
@@ -210,10 +281,20 @@ class AuthProvider extends ChangeNotifier {
         await _googleSignIn.signOut();
       }
       await _auth.signOut();
-      notifyListeners(); // 상태 변경을 알림
+
+      // 현재 context를 가져오기 위해 navigatorKey 사용
+      if (navigatorKey.currentContext != null) {
+        Navigator.pushNamedAndRemoveUntil(
+          navigatorKey.currentContext!,
+          AppRoutes.initial,
+          (route) => false,
+        );
+      }
+
+      notifyListeners();
     } catch (e) {
       _error = e.toString();
-      notifyListeners(); // 에러 상태를 알림
+      notifyListeners();
     } finally {
       _isLoading = false;
       notifyListeners();
