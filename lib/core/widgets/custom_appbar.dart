@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import '../../features/auth/widgets/login_dialog.dart';
 import '../providers/theme_provider.dart';
+import '../routes/app_routes.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -56,9 +57,26 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             leading: leading,
             title: Row(
               children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleLarge,
+                GestureDetector(
+                  onTap: () {
+                    if (ModalRoute.of(context)?.settings.name !=
+                            AppRoutes.initial &&
+                        ModalRoute.of(context)?.settings.name !=
+                            AppRoutes.home) {
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        AppRoutes.initial,
+                        (route) => false,
+                      );
+                    }
+                  },
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 24,
+                          letterSpacing: 1.2,
+                        ),
+                  ),
                 ),
                 const Spacer(),
                 if (showSearchBox)
@@ -93,66 +111,67 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       ),
                     ),
                   ),
-                IconButton(
-                  icon: Icon(
-                    Theme.of(context).brightness == Brightness.light
-                        ? Icons.dark_mode_outlined
-                        : Icons.light_mode_outlined,
-                  ),
-                  onPressed: () => themeProvider.toggleTheme(),
-                ),
-                Consumer<AuthProvider>(
-                  builder: (context, authProvider, _) {
-                    if (authProvider.currentUser != null) {
-                      return PopupMenuButton(
-                        icon: CircleAvatar(
-                          backgroundImage:
-                              authProvider.currentUser?.photoURL != null
-                                  ? NetworkImage(
-                                      authProvider.currentUser!.photoURL!)
-                                  : null,
-                          child: authProvider.currentUser?.photoURL == null
-                              ? Text(
-                                  authProvider.currentUser?.displayName
-                                          ?.substring(0, 1)
-                                          .toUpperCase() ??
-                                      '?',
-                                )
-                              : null,
-                        ),
-                        itemBuilder: (context) => [
-                          const PopupMenuItem(
-                            value: 'profile',
-                            child: Text('프로필'),
-                          ),
-                          const PopupMenuItem(
-                            value: 'settings',
-                            child: Text('설정'),
-                          ),
-                          const PopupMenuItem(
-                            value: 'logout',
-                            child: Text('로그아웃'),
-                          ),
-                        ],
-                        onSelected: (value) {
-                          if (value == 'logout') {
-                            authProvider.signOut();
-                          }
-                          // TODO: 다른 메뉴 항목 처리
-                        },
-                      );
-                    } else {
-                      return TextButton(
-                        onPressed: () => _showLoginDialog(context),
-                        child: const Text('로그인'),
-                      );
-                    }
-                  },
-                ),
               ],
             ),
             centerTitle: centerTitle,
             elevation: elevation,
+            actions: [
+              IconButton(
+                icon: Icon(
+                  Theme.of(context).brightness == Brightness.light
+                      ? Icons.dark_mode_outlined
+                      : Icons.light_mode_outlined,
+                ),
+                onPressed: () => themeProvider.toggleTheme(),
+              ),
+              Consumer<AuthProvider>(
+                builder: (context, authProvider, _) {
+                  if (authProvider.currentUser != null) {
+                    return PopupMenuButton(
+                      icon: CircleAvatar(
+                        backgroundImage: authProvider.currentUser?.photoURL !=
+                                null
+                            ? NetworkImage(authProvider.currentUser!.photoURL!)
+                            : null,
+                        child: authProvider.currentUser?.photoURL == null
+                            ? Text(
+                                authProvider.currentUser?.displayName
+                                        ?.substring(0, 1)
+                                        .toUpperCase() ??
+                                    '?',
+                              )
+                            : null,
+                      ),
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: 'profile',
+                          child: Text('프로필'),
+                        ),
+                        const PopupMenuItem(
+                          value: 'settings',
+                          child: Text('설정'),
+                        ),
+                        const PopupMenuItem(
+                          value: 'logout',
+                          child: Text('로그아웃'),
+                        ),
+                      ],
+                      onSelected: (value) {
+                        if (value == 'logout') {
+                          authProvider.signOut();
+                        }
+                        // TODO: 다른 메뉴 항목 처리
+                      },
+                    );
+                  } else {
+                    return TextButton(
+                      onPressed: () => _showLoginDialog(context),
+                      child: const Text('로그인'),
+                    );
+                  }
+                },
+              ),
+            ],
           ),
         ),
       ),

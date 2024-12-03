@@ -87,7 +87,7 @@ class _SignUpDialogState extends State<SignUpDialog> {
               '회원가입이 완료되었습니다!',
               style: TextStyle(
                 fontSize: 16,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 8),
@@ -96,6 +96,41 @@ class _SignUpDialogState extends State<SignUpDialog> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextButton.icon(
+              onPressed: () async {
+                try {
+                  await context
+                      .read<AuthProvider>()
+                      .resendVerificationEmail(_emailController.text);
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('인증 메일이 재발송되었습니다.'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(e.toString()),
+                        backgroundColor: Colors.red,
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                }
+              },
+              icon: const Icon(Icons.refresh),
+              label: Text(
+                '인증 메일 재발송',
+                style: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                ),
               ),
             ),
           ],

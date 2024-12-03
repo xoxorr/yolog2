@@ -49,9 +49,49 @@ class MyApp extends StatelessWidget {
         builder: (context, themeProvider, child) {
           return MaterialApp(
             title: 'Yolog',
-            theme: themeProvider.theme,
+            theme: ThemeData(
+              useMaterial3: true,
+              fontFamily: 'Pretendard',
+              brightness: themeProvider.theme.brightness,
+              colorScheme: themeProvider.theme.colorScheme,
+              appBarTheme: AppBarTheme(
+                backgroundColor:
+                    themeProvider.theme.brightness == Brightness.dark
+                        ? Colors.grey[900]
+                        : Colors.white,
+                foregroundColor:
+                    themeProvider.theme.brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
+                elevation: 0,
+              ),
+              scaffoldBackgroundColor:
+                  themeProvider.theme.brightness == Brightness.dark
+                      ? Colors.black
+                      : Colors.white,
+              textTheme: ThemeData.light().textTheme.apply(
+                    fontFamily: 'Pretendard',
+                    bodyColor: themeProvider.theme.brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black87,
+                    displayColor:
+                        themeProvider.theme.brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.black,
+                  ),
+              primaryTextTheme: ThemeData.light().textTheme.apply(
+                    fontFamily: 'Pretendard',
+                    bodyColor: themeProvider.theme.brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black87,
+                    displayColor:
+                        themeProvider.theme.brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.black,
+                  ),
+            ),
             routes: AppRoutes.getRoutes(),
-            initialRoute: AppRoutes.home,
+            initialRoute: AppRoutes.initial,
             onGenerateRoute: AppRoutes.onGenerateRoute,
             onUnknownRoute: AppRoutes.onUnknownRoute,
           );

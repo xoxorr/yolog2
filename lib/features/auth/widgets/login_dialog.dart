@@ -64,6 +64,111 @@ class _LoginDialogState extends State<LoginDialog> {
     );
   }
 
+  void _showPasswordResetDialog() {
+    final emailController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text(
+            '비밀번호 재설정',
+            textAlign: TextAlign.center,
+          ),
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  '가입하신 이메일로 재설정 링크를 보내드립니다.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: emailController,
+                  decoration: const InputDecoration(
+                    labelText: '이메일',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.email_outlined),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '이메일을 입력해주세요';
+                    }
+                    if (!value.contains('@')) {
+                      return '올바른 이메일 형식이 아닙니다';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: isLoading ? null : () => Navigator.pop(context),
+              child: const Text('취소'),
+            ),
+            ElevatedButton(
+              onPressed: isLoading
+                  ? null
+                  : () async {
+                      if (formKey.currentState?.validate() ?? false) {
+                        setState(() => isLoading = true);
+                        try {
+                          await context
+                              .read<AuthProvider>()
+                              .sendPasswordResetEmail(emailController.text);
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('비밀번호 재설정 이메일이 발송되었습니다.'),
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('이메일 발송 중 오류가 발생했습니다.'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        } finally {
+                          if (context.mounted) {
+                            setState(() => isLoading = false);
+                          }
+                        }
+                      }
+                    },
+              child: isLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Text('전송'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -135,6 +240,20 @@ class _LoginDialogState extends State<LoginDialog> {
                     }
                     return null;
                   },
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: _isLoading ? null : _showPasswordResetDialog,
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size(0, 30),
+                    ),
+                    child: const Text(
+                      '비밀번호를 잊으셨나요?',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ),
                 ),
                 if (_error != null) ...[
                   const SizedBox(height: 8),

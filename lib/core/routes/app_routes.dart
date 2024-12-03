@@ -3,7 +3,8 @@ import '../../features/home/screens/home_screen.dart';
 import '../../features/post/screens/create_post_screen.dart';
 
 class AppRoutes {
-  static const String home = '/';
+  static const String initial = '/';
+  static const String home = '/home';
   static const String login = '/login';
   static const String signup = '/signup';
   static const String forgotPassword = '/forgot-password';
@@ -11,7 +12,11 @@ class AppRoutes {
 
   static Map<String, WidgetBuilder> getRoutes() {
     return {
+      initial: (context) => const HomeScreen(),
       home: (context) => const HomeScreen(),
+      login: (context) => const HomeScreen(),
+      signup: (context) => const HomeScreen(),
+      forgotPassword: (context) => const HomeScreen(),
       createPost: (context) => const CreatePostScreen(),
     };
   }
