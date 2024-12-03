@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/providers/auth_provider.dart';
+import '../providers/auth_provider.dart'; // 상대 경로로 수정
 import 'login_dialog.dart';
 
 class SignUpDialog extends StatefulWidget {
@@ -14,6 +14,7 @@ class _SignUpDialogState extends State<SignUpDialog> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _usernameController = TextEditingController();
   bool _isLoading = false;
   String? _error;
@@ -22,6 +23,7 @@ class _SignUpDialogState extends State<SignUpDialog> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     _usernameController.dispose();
     super.dispose();
   }
@@ -34,18 +36,20 @@ class _SignUpDialogState extends State<SignUpDialog> {
       });
 
       try {
-        await Provider.of<AuthProvider>(context, listen: false).signUpWithEmail(
-          _emailController.text,
-          _passwordController.text,
-          _usernameController.text,
+        final success =
+            await Provider.of<AuthProvider>(context, listen: false).signUp(
+          email: _emailController.text,
+          password: _passwordController.text,
+          confirmPassword: _confirmPasswordController.text,
         );
-        if (mounted) {
+
+        if (success && mounted) {
           Navigator.of(context).pop();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('이메일 인증 메일이 발송되었습니다. 이메일을 확인해주세요.'),
-            ),
-          );
+          _showEmailVerificationDialog();
+        } else if (mounted) {
+          setState(() {
+            _error = Provider.of<AuthProvider>(context, listen: false).error;
+          });
         }
       } catch (e) {
         setState(() {
@@ -61,8 +65,58 @@ class _SignUpDialogState extends State<SignUpDialog> {
     }
   }
 
+  void _showEmailVerificationDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text(
+          '이메일 인증',
+          textAlign: TextAlign.center,
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.mark_email_unread_outlined,
+              size: 50,
+              color: Colors.blue,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              '회원가입이 완료되었습니다!',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              '입력하신 이메일로 인증 메일이 발송되었습니다.\n이메일을 확인하여 인증을 완료해 주세요.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _showLoginDialog();
+            },
+            style: TextButton.styleFrom(
+              minimumSize: const Size(double.infinity, 40),
+            ),
+            child: const Text('로그인하러 가기'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showLoginDialog() {
-    Navigator.of(context).pop();
     showDialog(
       context: context,
       builder: (context) => const LoginDialog(),
@@ -93,7 +147,7 @@ class _SignUpDialogState extends State<SignUpDialog> {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  '회원가입하고 Yolog의 다양한 기능을 사용해보세요',
+                  '회원가입',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.grey,
@@ -137,14 +191,39 @@ class _SignUpDialogState extends State<SignUpDialog> {
                   decoration: const InputDecoration(
                     labelText: '비밀번호',
                     border: OutlineInputBorder(),
+                    helperText: '8자 이상, 영문/숫자/특수문자 조합',
+                    helperMaxLines: 2,
                   ),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '비밀번호를 입력해주세요';
                     }
-                    if (value.length < 6) {
-                      return '비밀번호는 6자 이상이어야 합니다';
+                    if (value.length < 8) {
+                      return '비밀번호는 8자 이상이어야 합니다';
+                    }
+                    if (!RegExp(
+                            r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]')
+                        .hasMatch(value)) {
+                      return '영문, 숫자, 특수문자를 모두 포함해야 합니다';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _confirmPasswordController,
+                  decoration: const InputDecoration(
+                    labelText: '비밀번호 확인',
+                    border: OutlineInputBorder(),
+                  ),
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '비밀번호를 다시 입력해주세요';
+                    }
+                    if (value != _passwordController.text) {
+                      return '비밀번호가 일치하지 않습니다';
                     }
                     return null;
                   },

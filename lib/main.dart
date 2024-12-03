@@ -8,7 +8,7 @@ import 'core/routes/app_routes.dart';
 import 'features/post/services/post_service.dart';
 import 'features/post/repositories/post_repository.dart';
 import 'firebase_options.dart';
-import 'core/providers/auth_provider.dart' as app_auth;
+import 'features/auth/providers/auth_provider.dart' as app_auth;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -108,12 +108,12 @@ class StatsService {
   }
 
   Map<String, double> _calculateAverageCostPerDestination(
-      Map<String, double> expenses, Map<String, int> visits) {
+      Map<String, double> expenses, Map<String, int> visitCounts) {
     final Map<String, double> averages = {};
 
     expenses.forEach((country, totalExpense) {
-      final visits = visits[country] ?? 1;
-      averages[country] = totalExpense / visits;
+      final visitCount = visitCounts[country] ?? 1;
+      averages[country] = totalExpense / visitCount;
     });
 
     return averages;

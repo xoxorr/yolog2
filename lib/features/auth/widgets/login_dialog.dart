@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/providers/auth_provider.dart';
+import '../providers/auth_provider.dart'; // 상대 경로로 수정
 import 'signup_dialog.dart';
 
 class LoginDialog extends StatefulWidget {
@@ -32,10 +32,15 @@ class _LoginDialogState extends State<LoginDialog> {
       });
 
       try {
-        await Provider.of<AuthProvider>(context, listen: false)
+        final success = await Provider.of<AuthProvider>(context, listen: false)
             .signInWithEmail(_emailController.text, _passwordController.text);
-        if (mounted) {
-          Navigator.of(context).pop();
+
+        if (success && mounted) {
+          Navigator.of(context).pop(); // 성공 시에만 다이얼로그 닫기
+        } else if (mounted) {
+          setState(() {
+            _error = Provider.of<AuthProvider>(context, listen: false).error;
+          });
         }
       } catch (e) {
         setState(() {
@@ -83,7 +88,7 @@ class _LoginDialogState extends State<LoginDialog> {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  '로그인하고 Yolog의 다양한 기능을 사용해보세요',
+                  'Yolog에서 당신의 여정을 기록해보세요',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.grey,
@@ -97,6 +102,9 @@ class _LoginDialogState extends State<LoginDialog> {
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.emailAddress,
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context).nextFocus();
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '이메일을 입력해주세요';
@@ -115,6 +123,9 @@ class _LoginDialogState extends State<LoginDialog> {
                     border: OutlineInputBorder(),
                   ),
                   obscureText: true,
+                  onFieldSubmitted: (_) {
+                    _handleEmailLogin();
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '비밀번호를 입력해주세요';
@@ -166,8 +177,8 @@ class _LoginDialogState extends State<LoginDialog> {
                               .signInWithGoogle();
                         },
                   style: ElevatedButton.styleFrom(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
