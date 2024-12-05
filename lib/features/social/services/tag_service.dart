@@ -70,7 +70,7 @@ class TagService {
     final snapshot = await _firestore
         .collection(_collection)
         .where('name', isGreaterThanOrEqualTo: query)
-        .where('name', isLessThan: query + 'z')
+        .where('name', isLessThan: '${query}z')
         .orderBy('name')
         .limit(20)
         .get();

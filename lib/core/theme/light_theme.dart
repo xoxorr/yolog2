@@ -8,7 +8,6 @@ class LightTheme {
           primary: const Color(0xFF4169E1),
           primaryContainer: const Color(0xFF4169E1).withOpacity(0.1),
           secondary: const Color(0xFF4169E1),
-          background: Colors.white,
           surface: Colors.white,
           error: const Color(0xFFB00020),
         ),

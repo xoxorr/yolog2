@@ -14,7 +14,7 @@ class TextScale extends StatelessWidget {
   Widget build(BuildContext context) {
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(
-        textScaleFactor: scale,
+        textScaler: TextScaler.linear(scale),
       ),
       child: child,
     );

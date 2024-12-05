@@ -18,7 +18,6 @@ class MediaService {
   // 이미지 선택 (갤러리)
   Future<List<File>> pickImages({int maxImages = 10}) async {
     final pickedFiles = await _picker.pickMultiImage();
-    if (pickedFiles == null) return [];
 
     return pickedFiles
         .map((xFile) => File(xFile.path))

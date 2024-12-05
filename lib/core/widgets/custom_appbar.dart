@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import '../../features/auth/widgets/login_dialog.dart';
 import '../providers/theme_provider.dart';
-import '../routes/app_routes.dart';
+import '../routes/routes.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -13,6 +13,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showSearchBox;
   final double elevation;
   final VoidCallback? onTap;
+  final bool? isSidebarOpen;
 
   const CustomAppBar({
     super.key,
@@ -23,6 +24,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.showSearchBox = true,
     this.elevation = 0,
     this.onTap,
+    this.isSidebarOpen,
   });
 
   @override
@@ -56,7 +58,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           color: Colors.transparent,
           child: AppBar(
             backgroundColor: Colors.transparent,
-            leading: leading,
+            leading: leading ??
+                (isSidebarOpen != null
+                    ? Icon(
+                        isSidebarOpen! ? Icons.menu_open : Icons.menu,
+                        color: Theme.of(context).iconTheme.color,
+                      )
+                    : null),
             title: Row(
               children: [
                 GestureDetector(
@@ -171,7 +179,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       onSelected: (value) {
                         switch (value) {
                           case 'profile':
-                            Navigator.pushNamed(context, AppRoutes.profile);
+                            Navigator.pushNamed(context, Routes.profile);
                             break;
                           case 'settings':
                             // TODO: 설정 화면으로 이동

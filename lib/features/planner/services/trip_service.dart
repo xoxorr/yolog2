@@ -91,7 +91,7 @@ class TripService {
         .where('userId', isEqualTo: userId)
         .where('destination', isGreaterThanOrEqualTo: destination)
         .where('destination',
-            isLessThanOrEqualTo: destination + '\uf8ff')
+            isLessThanOrEqualTo: '$destination\uf8ff')
         .get();
     return snapshot.docs.map((doc) => Trip.fromFirestore(doc)).toList();
   }

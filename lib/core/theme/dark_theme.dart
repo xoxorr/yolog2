@@ -9,10 +9,9 @@ class DarkTheme {
           primaryContainer: const Color(0xFF4169E1).withOpacity(0.1),
           secondary: const Color(0xFF4169E1),
           error: const Color(0xFFCF6679),
-          background: const Color(0xFF121212),
           surface: const Color(0xFF1E1E1E),
         ),
-        appBarTheme: AppBarTheme(
+        appBarTheme: const AppBarTheme(
           centerTitle: true,
           elevation: 0,
           backgroundColor: Colors.transparent,

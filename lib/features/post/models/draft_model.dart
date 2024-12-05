@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'media_model.dart';
 import 'location_model.dart';
 import 'visibility_type.dart';

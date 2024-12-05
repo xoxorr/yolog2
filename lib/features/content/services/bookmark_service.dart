@@ -105,7 +105,7 @@ class BookmarkService {
         .collection(_collection)
         .where('userId', isEqualTo: userId)
         .where('content.title', isGreaterThanOrEqualTo: query)
-        .where('content.title', isLessThan: query + 'z')
+        .where('content.title', isLessThan: '${query}z')
         .orderBy('content.title')
         .get();
 

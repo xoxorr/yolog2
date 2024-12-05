@@ -1,92 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/widgets/custom_appbar.dart';
-import '../../../core/routes/app_routes.dart';
 import '../services/profile_service.dart';
-import '../../auth/providers/auth_provider.dart';
-import '../widgets/profile_sidebar.dart';
 import '../models/profile_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../widgets/profile_layout.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const ProfileView();
-  }
+  State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class ProfileView extends StatefulWidget {
-  const ProfileView({super.key});
-
-  @override
-  State<ProfileView> createState() => _ProfileViewState();
-}
-
-class _ProfileViewState extends State<ProfileView> {
+class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    final user = context.read<AuthProvider>().currentUser;
-    if (user != null) {
-      context.read<ProfileService>().loadProfile(user.uid);
-    }
+    Future.microtask(() {
+      if (mounted) {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          final profileService = context.read<ProfileService>();
+          profileService.loadProfile(user.uid);
+        }
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        title: 'YOLOG',
-        centerTitle: false,
-        leading: Container(),
-        onTap: () {
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            AppRoutes.initial,
-            (route) => false,
+    return ProfileLayout(
+      title: '프로필',
+      child: Consumer<ProfileService>(
+        builder: (context, profileService, child) {
+          if (profileService.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final profile = profileService.profile;
+          if (profile == null) {
+            return const Center(child: Text('프로필을 불러올 수 없습니다.'));
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildProfileHeader(context, profile),
+                const SizedBox(height: 24),
+                _buildProfileContent(context, profile),
+              ],
+            ),
           );
         },
-      ),
-      body: Row(
-        children: [
-          // 고정 사이드바
-          const ProfileSidebar(),
-          // 메인 컨텐츠
-          Expanded(
-            child: Consumer<ProfileService>(
-              builder: (context, profileService, child) {
-                if (profileService.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final profile = profileService.profile;
-                if (profile == null) {
-                  return const Center(child: Text('프로필을 불러올 수 없습니다.'));
-                }
-
-                return SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 프로필 헤더
-                      _buildProfileHeader(profile),
-                      const SizedBox(height: 24),
-                      // 프로필 컨텐츠
-                      _buildProfileContent(profile),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
       ),
     );
   }
 
-  Widget _buildProfileHeader(ProfileModel profile) {
+  Widget _buildProfileHeader(BuildContext context, ProfileModel profile) {
     return Row(
       children: [
         CircleAvatar(
@@ -129,11 +101,10 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-  Widget _buildProfileContent(ProfileModel profile) {
+  Widget _buildProfileContent(BuildContext context, ProfileModel profile) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 여행 스타일 섹션
         Card(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -144,14 +115,12 @@ class _ProfileViewState extends State<ProfileView> {
                   '여행 스타일',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                // TODO: 여행 스타일 내용 추가
+                // TODO: 여행 타일 내용 추가
               ],
             ),
           ),
         ),
         const SizedBox(height: 16),
-
-        // 여행 통계 섹션
         Card(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -162,7 +131,7 @@ class _ProfileViewState extends State<ProfileView> {
                   '여행 통계',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                // TODO: 통계 내용 추가
+                // TODO: 통계 내용 가
               ],
             ),
           ),

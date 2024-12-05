@@ -34,7 +34,7 @@ class PostCard extends StatelessWidget {
                 // TODO: 사용자 프로필 이미지
                 child: Icon(Icons.person),
               ),
-              title: Text('사용자 이름'), // TODO: 실제 사용자 이름
+              title: const Text('사용자 이름'), // TODO: 실제 사용자 이름
               subtitle: Text(
                 _formatDate(post.createdAt),
                 style: Theme.of(context).textTheme.bodySmall,

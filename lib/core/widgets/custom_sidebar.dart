@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../constants/style_constants.dart';
 
 class CustomSidebar extends StatelessWidget {
   final int selectedIndex;

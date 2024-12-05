@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart';
 import '../models/visit_model.dart';
 import '../services/visit_service.dart';
 

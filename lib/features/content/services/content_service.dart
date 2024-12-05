@@ -105,7 +105,7 @@ class ContentService {
     final snapshot = await _firestore
         .collection(_collection)
         .where('title', isGreaterThanOrEqualTo: query)
-        .where('title', isLessThan: query + 'z')
+        .where('title', isLessThan: '${query}z')
         .orderBy('title')
         .limit(20)
         .get();

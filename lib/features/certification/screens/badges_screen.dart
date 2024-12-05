@@ -377,9 +377,9 @@ class _BadgesScreenState extends State<BadgesScreen>
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
-              Text(
+              const Text(
                 '획득 조건',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               ...badge.requirements.entries.map((entry) {

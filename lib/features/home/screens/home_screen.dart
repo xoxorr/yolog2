@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:yolog/features/post/screens/create_post_screen.dart';
-import '../../../features/auth/providers/auth_provider.dart';
-import '../../../core/providers/theme_provider.dart';
 import '../../support/screens/update_screen.dart';
 import '../../support/screens/support_center_screen.dart';
 import '../../../core/widgets/custom_appbar.dart';

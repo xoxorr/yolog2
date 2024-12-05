@@ -4,7 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'core/providers/theme_provider.dart';
-import 'core/routes/app_routes.dart';
+import 'core/routes/routes.dart';
 import 'features/post/services/post_service.dart';
 import 'features/post/repositories/post_repository.dart';
 import 'firebase_options.dart';
@@ -13,6 +13,22 @@ import 'features/profile/services/profile_service.dart';
 
 // 전역 navigatorKey 추가
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+// NoTransitionsBuilder 클래스 추가
+class NoTransitionsBuilder extends PageTransitionsBuilder {
+  const NoTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return child;
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -98,11 +114,22 @@ class MyApp extends StatelessWidget {
                             ? Colors.white
                             : Colors.black,
                   ),
+              // 모든 플랫폼에서 페이드 애니메이션 제거
+              pageTransitionsTheme: const PageTransitionsTheme(
+                builders: {
+                  TargetPlatform.android: NoTransitionsBuilder(),
+                  TargetPlatform.iOS: NoTransitionsBuilder(),
+                  TargetPlatform.windows: NoTransitionsBuilder(),
+                  TargetPlatform.macOS: NoTransitionsBuilder(),
+                  TargetPlatform.linux: NoTransitionsBuilder(),
+                  TargetPlatform.fuchsia: NoTransitionsBuilder(),
+                },
+              ),
             ),
-            routes: AppRoutes.getRoutes(),
-            initialRoute: AppRoutes.initial,
-            onGenerateRoute: AppRoutes.onGenerateRoute,
-            onUnknownRoute: AppRoutes.onUnknownRoute,
+            routes: Routes.getRoutes(),
+            initialRoute: Routes.initial,
+            onGenerateRoute: Routes.onGenerateRoute,
+            onUnknownRoute: Routes.onUnknownRoute,
           );
         },
       ),

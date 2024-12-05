@@ -82,8 +82,9 @@ class VisitService {
     if (photos != null) updates['photos'] = photos;
     if (note != null) updates['note'] = note;
     if (isVerified != null) updates['isVerified'] = isVerified;
-    if (verificationData != null)
+    if (verificationData != null) {
       updates['verificationData'] = verificationData;
+    }
 
     await _visitsRef.doc(visitId).update(updates);
   }

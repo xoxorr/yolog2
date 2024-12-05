@@ -123,7 +123,7 @@ class GpsService {
   }
 
   // 이동 경로 기록
-  List<LatLng> _trackPoints = [];
+  final List<LatLng> _trackPoints = [];
 
   void addTrackPoint(LatLng point) {
     _trackPoints.add(point);

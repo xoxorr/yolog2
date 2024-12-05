@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../core/routes/app_routes.dart';
+import '../../../core/routes/routes.dart';
 import '../../../main.dart';
 
 class AuthProvider extends ChangeNotifier {
@@ -210,7 +210,7 @@ class AuthProvider extends ChangeNotifier {
           if (optimizedPhotoURL != null &&
               optimizedPhotoURL.contains('googleusercontent.com')) {
             // Google 프로필 이미지 URL을 더 짧은 버전으로 최적화
-            optimizedPhotoURL = optimizedPhotoURL.split('=')[0] + '=s96-c';
+            optimizedPhotoURL = '${optimizedPhotoURL.split('=')[0]}=s96-c';
           }
 
           await _firestore.collection('users').doc(user.uid).set({
@@ -286,7 +286,7 @@ class AuthProvider extends ChangeNotifier {
       if (navigatorKey.currentContext != null) {
         Navigator.pushNamedAndRemoveUntil(
           navigatorKey.currentContext!,
-          AppRoutes.initial,
+          Routes.initial,
           (route) => false,
         );
       }
@@ -381,7 +381,7 @@ class AuthProvider extends ChangeNotifier {
         case 'user-not-found':
           throw '등록되지 않은 이메일입니다.';
         case 'wrong-password':
-          throw '비밀번호가 변경되었습니다. 로그인 후 다시 시도해주세요.';
+          throw '비밀번호가 변경되었습니다. 로그�� 후 다시 시도해주세요.';
         case 'too-many-requests':
           throw '너무 많은 시도가 있었습니다. 잠시 후 다시 시도해주세요.';
         case 'invalid-email':
@@ -391,7 +391,7 @@ class AuthProvider extends ChangeNotifier {
       }
     } catch (e) {
       if (e is String) {
-        throw e;
+        rethrow;
       }
       throw '인증 메일 재발송 중 오류가 발생했습니다.';
     } finally {

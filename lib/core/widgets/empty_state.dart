@@ -29,13 +29,13 @@ class EmptyState extends StatelessWidget {
               icon,
               size: 64,
               color:
-                  Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+                  Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
             ),
             const SizedBox(height: StyleConstants.spacingM),
             Text(
               message,
               style: StyleConstants.headlineMedium.copyWith(
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               textAlign: TextAlign.center,
             ),
@@ -46,7 +46,7 @@ class EmptyState extends StatelessWidget {
                 style: StyleConstants.bodyMedium.copyWith(
                   color: Theme.of(context)
                       .colorScheme
-                      .onBackground
+                      .onSurface
                       .withOpacity(0.7),
                 ),
                 textAlign: TextAlign.center,
@@ -56,13 +56,13 @@ class EmptyState extends StatelessWidget {
               const SizedBox(height: StyleConstants.spacingL),
               ElevatedButton(
                 onPressed: onAction,
-                child: Text(actionLabel!),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: StyleConstants.spacingL,
                     vertical: StyleConstants.spacingM,
                   ),
                 ),
+                child: Text(actionLabel!),
               ),
             ],
           ],
