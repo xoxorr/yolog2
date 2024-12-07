@@ -121,6 +121,7 @@ class AuthProvider extends ChangeNotifier {
     required String email,
     required String password,
     required String confirmPassword,
+    required String displayName,
   }) async {
     if (password != confirmPassword) {
       _error = '비밀번호가 일치하지 않습니다.';
@@ -139,12 +140,17 @@ class AuthProvider extends ChangeNotifier {
         password: password,
       );
 
+      // 사용자 프로필 업데이트
+      await userCredential.user?.updateDisplayName(displayName);
+
       await userCredential.user?.sendEmailVerification();
 
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
         'email': email,
+        'displayName': displayName,
         'createdAt': FieldValue.serverTimestamp(),
         'emailVerified': false,
+        'photoURL': null,
       });
 
       await _auth.signOut();

@@ -41,6 +41,7 @@ class _SignUpDialogState extends State<SignUpDialog> {
           email: _emailController.text,
           password: _passwordController.text,
           confirmPassword: _confirmPasswordController.text,
+          displayName: _usernameController.text,  // 사용자 이름 전달
         );
 
         if (success && mounted) {

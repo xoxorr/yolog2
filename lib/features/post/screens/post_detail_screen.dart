@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import '../models/post_model.dart';
 import '../models/media_model.dart';
 import '../services/post_service.dart';
-import 'edit_post_screen.dart';
 import 'package:provider/provider.dart';
 
 class PostDetailScreen extends StatefulWidget {
@@ -94,16 +94,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   Future<void> _handleEdit() async {
     if (_post == null) return;
 
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EditPostScreen(post: _post!),
-      ),
+    // TODO: 게시글 수정 기능 구현
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('게시글 수정 기능은 아직 구현되지 않았습니다.')),
     );
-
-    if (result == true) {
-      _loadPost();
-    }
   }
 
   Widget _buildMediaCarousel(List<MediaModel> media) {
@@ -247,7 +241,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               runSpacing: 8,
               children: _post!.tags.map((tag) {
                 return Chip(
-                  label: Text(tag.name),
+                  label: Text(tag),
                 );
               }).toList(),
             ),

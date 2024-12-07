@@ -1,17 +1,20 @@
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../repositories/post_repository.dart';
 import '../models/post_model.dart';
 
 class PostService extends ChangeNotifier {
   final FirebaseAuth _auth;
   final PostRepository _postRepository;
+  final FirebaseFirestore _firestore;
 
   PostService({
     required FirebaseAuth auth,
     required PostRepository postRepository,
   })  : _auth = auth,
-        _postRepository = postRepository;
+        _postRepository = postRepository,
+        _firestore = FirebaseFirestore.instance;
 
   String? validatePost(PostModel post) {
     if (post.title.isEmpty) {
@@ -38,7 +41,26 @@ class PostService extends ChangeNotifier {
       throw Exception('로그인이 필요합니다');
     }
 
-    return _postRepository.createPost(post);
+    // 사용자 정보 가져오기
+    final userDoc =
+        await _firestore.collection('users').doc(currentUser.uid).get();
+    final userName = userDoc.data()?['displayName'] as String? ??
+        currentUser.displayName ??
+        '익명';
+    final photoUrl =
+        userDoc.data()?['photoURL'] as String? ?? currentUser.photoURL;
+
+    // 사용자 정보를 포함한 새 게시글 생성
+    final newPost = post.copyWith(
+      authorId: currentUser.uid,
+      authorName: userName,
+      authorPhotoUrl: photoUrl,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    // 게시글 저장 후 ID 반환
+    return _postRepository.createPost(newPost);
   }
 
   // 게시글 수정
@@ -54,10 +76,12 @@ class PostService extends ChangeNotifier {
     }
 
     if (post.authorId != currentUser.uid) {
-      throw Exception('게시글을 수정할 권한이 없습니다');
+      throw Exception('자신의 게시글만 수정할 수 있습니다');
     }
 
-    await _postRepository.updatePost(post);
+    await _postRepository.updatePost(post.copyWith(
+      updatedAt: DateTime.now(),
+    ));
   }
 
   // 게시글 삭제
@@ -73,7 +97,7 @@ class PostService extends ChangeNotifier {
     }
 
     if (post.authorId != currentUser.uid) {
-      throw Exception('게시글을 삭제할 권한이 없습니다');
+      throw Exception('자신의 게시글만 삭제할 수 있습니다');
     }
 
     await _postRepository.deletePost(postId);

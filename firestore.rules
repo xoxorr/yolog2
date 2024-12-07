@@ -1,0 +1,45 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 공통 함수
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // users 컬렉션 규칙
+    match /users/{userId} {
+      // 기본 사용자 데이터 규칙
+      allow read: if true;
+      allow create, update, delete: if isAuthenticated() && request.auth.uid == userId;
+      
+      // 추가적인 필드 검증
+      function isValidUserData() {
+        let incoming = request.resource.data;
+        return incoming.email is string &&
+               incoming.createdAt is timestamp &&
+               incoming.emailVerified is bool;
+      }
+    }
+    
+    // posts 컬렉션 규칙
+    match /posts/{postId} {
+      // 자신의 게시글인지 확인하는 함수
+      function isOwner(resource) {
+        return resource.data.authorId == request.auth.uid;
+      }
+      
+      // 읽기: 모든 사용자가 게시글을 읽을 수 있음
+      allow read: if true;
+      
+      // 생성: 인증된 사용자만 게시글 작성 가능
+      allow create: if isAuthenticated();
+      
+      // 수정: 자신의 게시글만 수정 가능
+      allow update: if isAuthenticated() && isOwner(resource);
+      
+      // 삭제: 자신의 게시글만 삭제 가능
+      allow delete: if isAuthenticated() && isOwner(resource);
+    }
+  }
+}

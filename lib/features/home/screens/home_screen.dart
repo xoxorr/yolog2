@@ -4,6 +4,7 @@ import '../../support/screens/support_center_screen.dart';
 import '../../../core/widgets/custom_appbar.dart';
 import '../../../core/widgets/custom_sidebar.dart';
 import 'home_feed_screen.dart';
+import '../../post/screens/create_post_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const Center(child: Text('인기 콘텐츠')),
     const Center(child: Text('북마크')),
     const Center(child: Text('히스토리')),
-    const Center(child: Text('글쓰기')),
+    const CreatePostScreen(),
     const Center(child: Text('주목받는 멤버')),
     const Center(child: Text('팔로우 피드')),
     const Center(child: Text('태그 탐색')),

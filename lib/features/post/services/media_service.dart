@@ -99,16 +99,18 @@ class MediaService {
         // 10MB
         return '이미지 크기는 10MB를 초과할 수 없습니다.';
       }
+
       if (!['jpg', 'jpeg', 'png', 'gif'].contains(extension)) {
-        return '지원하지 않는 이미지 형식입니다.';
+        return '지원하지 않는 이미지 형식입니다. (jpg, jpeg, png, gif만 지원)';
       }
     } else if (type == MediaType.video) {
       if (size > 100 * 1024 * 1024) {
         // 100MB
         return '비디오 크기는 100MB를 초과할 수 없습니다.';
       }
+
       if (!['mp4', 'mov', 'avi'].contains(extension)) {
-        return '지원하지 않는 비디오 형식입니다.';
+        return '지원하지 않는 비디오 형식입니다. (mp4, mov, avi만 지원)';
       }
     }
 
