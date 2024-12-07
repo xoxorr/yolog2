@@ -50,6 +50,7 @@ class PostModel {
   final LocationModel? location;
   final int likeCount;
   final int commentCount;
+  final double rating;
 
   PostModel({
     required this.id,
@@ -66,6 +67,7 @@ class PostModel {
     this.location,
     this.likeCount = 0,
     this.commentCount = 0,
+    this.rating = 0.0,
   });
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
@@ -86,6 +88,7 @@ class PostModel {
       location: json['location'] != null ? LocationModel.fromJson(json['location'] as Map<String, dynamic>) : null,
       likeCount: json['likeCount'] as int? ?? 0,
       commentCount: json['commentCount'] as int? ?? 0,
+      rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
@@ -105,6 +108,7 @@ class PostModel {
       'location': location?.toJson(),
       'likeCount': likeCount,
       'commentCount': commentCount,
+      'rating': rating,
     };
   }
 
@@ -123,6 +127,7 @@ class PostModel {
     LocationModel? location,
     int? likeCount,
     int? commentCount,
+    double? rating,
   }) {
     return PostModel(
       id: id ?? this.id,
@@ -139,6 +144,7 @@ class PostModel {
       location: location ?? this.location,
       likeCount: likeCount ?? this.likeCount,
       commentCount: commentCount ?? this.commentCount,
+      rating: rating ?? this.rating,
     );
   }
 }

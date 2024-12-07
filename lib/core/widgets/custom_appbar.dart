@@ -14,6 +14,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final double elevation;
   final VoidCallback? onTap;
   final bool? isSidebarOpen;
+  final List<Widget>? actions;
 
   const CustomAppBar({
     super.key,
@@ -25,6 +26,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.elevation = 0,
     this.onTap,
     this.isSidebarOpen,
+    this.actions,
   });
 
   @override
@@ -43,7 +45,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).appBarTheme.backgroundColor,
+        color: Colors.transparent,
         boxShadow: elevation > 0
             ? [
                 BoxShadow(
@@ -58,6 +60,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           color: Colors.transparent,
           child: AppBar(
             backgroundColor: Colors.transparent,
+            surfaceTintColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            elevation: 0,
             leading: leading ??
                 (isSidebarOpen != null
                     ? Icon(
@@ -114,8 +119,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               ],
             ),
             centerTitle: centerTitle,
-            elevation: elevation,
-            actions: [
+            actions: actions ?? [
               IconButton(
                 icon: Icon(
                   Theme.of(context).brightness == Brightness.light

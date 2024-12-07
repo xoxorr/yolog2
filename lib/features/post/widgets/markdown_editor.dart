@@ -26,6 +26,9 @@ class _MarkdownEditorState extends State<MarkdownEditor> {
   void initState() {
     super.initState();
     _controller = QuillController.basic();
+    if (widget.initialValue != null) {
+      _controller.document.insert(0, widget.initialValue!);
+    }
     _controller.addListener(_onTextChanged);
   }
 
@@ -40,48 +43,58 @@ class _MarkdownEditorState extends State<MarkdownEditor> {
     widget.onChanged(plainText);
   }
 
+  void _insertDivider() {
+    final index = _controller.selection.baseOffset;
+    final length = _controller.selection.extentOffset - index;
+    
+    // 현재 커서 위치에 구분선 삽입
+    _controller.replaceText(index, length, '\n───────────────────\n', null);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFFF5F5F5),
+          decoration: const BoxDecoration(
             border: Border(
-              bottom: BorderSide(
-                color: Colors.grey.withOpacity(0.2),
-                width: 1,
-              ),
+              bottom: BorderSide(color: Colors.black12),
             ),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          child: QuillToolbar.simple(
-            configurations: QuillSimpleToolbarConfigurations(
-              controller: _controller,
-              showFontFamily: false,
-              showFontSize: false,
-              showBackgroundColorButton: false,
-              showColorButton: true,
-              showClearFormat: true,
-              showCodeBlock: false,
-              showInlineCode: false,
-              showListCheck: false,
-              showQuote: true,
-              showLink: true,
-              showHeaderStyle: true,
-              multiRowsDisplay: false,
-              toolbarIconAlignment: WrapAlignment.start,
-              toolbarIconCrossAlignment: WrapCrossAlignment.start,
-              padding: const EdgeInsets.all(0),
-              iconTheme: const QuillIconTheme(
-                iconSelectedColor: Colors.blue,
-                iconUnselectedColor: Colors.black87,
-                iconSelectedFillColor: Colors.transparent,
-                iconUnselectedFillColor: Colors.transparent,
-                iconSize: 20,
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            children: [
+              QuillToolbar.simple(
+                configurations: QuillSimpleToolbarConfigurations(
+                  controller: _controller,
+                  showFontFamily: false,
+                  showFontSize: false,
+                  showBackgroundColorButton: false,
+                  showColorButton: true,
+                  showClearFormat: true,
+                  showCodeBlock: false,
+                  showInlineCode: false,
+                  showListCheck: false,
+                  showQuote: true,
+                  showLink: true,
+                  showHeaderStyle: true,
+                  showAlignmentButtons: true,
+                  multiRowsDisplay: false,
+                  toolbarIconAlignment: WrapAlignment.start,
+                  toolbarIconCrossAlignment: WrapCrossAlignment.start,
+                ),
               ),
-              customButtons: const [],
-            ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.horizontal_rule),
+                    onPressed: _insertDivider,
+                    tooltip: '구분선 추가',
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
         Expanded(
@@ -91,91 +104,11 @@ class _MarkdownEditorState extends State<MarkdownEditor> {
               configurations: QuillEditorConfigurations(
                 controller: _controller,
                 autoFocus: false,
-                readOnly: false,
-                placeholder: '당신의 여정을 들려주세요!',
-                placeholderStyle: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black38,
-                  height: 1.5,
-                ),
+                placeholder: widget.label ?? '당신의 여정을 들려주세요!',
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 scrollable: true,
                 expands: false,
                 scrollBottomInset: 0,
-                customStyles: DefaultStyles(
-                  paragraph: DefaultTextBlockStyle(
-                    const TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                      height: 1.5,
-                    ),
-                    const VerticalSpacing(0, 0),
-                    const VerticalSpacing(0, 0),
-                    null,
-                  ),
-                  h1: DefaultTextBlockStyle(
-                    const TextStyle(
-                      fontSize: 24,
-                      color: Colors.black87,
-                      height: 1.5,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    const VerticalSpacing(12, 8),
-                    const VerticalSpacing(12, 8),
-                    null,
-                  ),
-                  h2: DefaultTextBlockStyle(
-                    const TextStyle(
-                      fontSize: 20,
-                      color: Colors.black87,
-                      height: 1.5,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    const VerticalSpacing(10, 6),
-                    const VerticalSpacing(10, 6),
-                    null,
-                  ),
-                  h3: DefaultTextBlockStyle(
-                    const TextStyle(
-                      fontSize: 18,
-                      color: Colors.black87,
-                      height: 1.5,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    const VerticalSpacing(8, 4),
-                    const VerticalSpacing(8, 4),
-                    null,
-                  ),
-                  lists: DefaultListBlockStyle(
-                    const TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                      height: 1.5,
-                    ),
-                    const VerticalSpacing(8, 4),
-                    const VerticalSpacing(8, 4),
-                    null,
-                    null,
-                  ),
-                  quote: DefaultTextBlockStyle(
-                    const TextStyle(
-                      fontSize: 16,
-                      color: Colors.black54,
-                      height: 1.5,
-                      fontStyle: FontStyle.italic,
-                    ),
-                    const VerticalSpacing(8, 4),
-                    const VerticalSpacing(8, 4),
-                    BoxDecoration(
-                      border: Border(
-                        left: BorderSide(
-                          color: Colors.black26,
-                          width: 4,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
               ),
             ),
           ),

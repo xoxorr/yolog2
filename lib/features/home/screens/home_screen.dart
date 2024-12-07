@@ -3,6 +3,7 @@ import '../../support/screens/update_screen.dart';
 import '../../support/screens/support_center_screen.dart';
 import '../../../core/widgets/custom_appbar.dart';
 import '../../../core/widgets/custom_sidebar.dart';
+import '../../../core/routes/routes.dart';
 import 'home_feed_screen.dart';
 import '../../post/screens/create_post_screen.dart';
 
@@ -55,6 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: const Icon(Icons.menu),
           onPressed: _toggleDrawer,
         ),
+        onTap: () => Navigator.pushNamed(context, Routes.home),
         onSearch: (query) {
           // TODO: 검색 기능 구현
           print('Search query: $query');
