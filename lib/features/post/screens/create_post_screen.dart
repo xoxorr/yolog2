@@ -1,10 +1,17 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/post_service.dart';
 import '../models/post_model.dart';
 import '../widgets/markdown_editor.dart';
+import '../widgets/media_picker.dart';
 import '../../../core/widgets/custom_appbar.dart';
 import '../../../core/constants/style_constants.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:uuid/uuid.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../screens/post_detail_screen.dart';
 
 class CreatePostScreen extends StatefulWidget {
   const CreatePostScreen({Key? key}) : super(key: key);
@@ -23,6 +30,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   double _rating = 0;
   bool _isSaving = false;
   final Set<String> _tags = {};
+  String _tempPostId = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _tempPostId = const Uuid().v4();
+  }
 
   @override
   void dispose() {
@@ -55,25 +69,42 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       });
 
       try {
+        // 현재 사용자 정보 가져오기
+        final user = FirebaseAuth.instance.currentUser;
+        if (user == null) throw '로그인이 필요합니다';
+
         final post = PostModel(
-          id: DateTime.now().toIso8601String(),
+          id: _tempPostId, // 미디어 업로드에 사용한 임시 ID를 실제 포스트 ID로 사용
           title: _titleController.text,
           content: _content,
-          authorId: 'user123',
-          authorName: '사용자',
+          authorId: user.uid,
+          authorName: user.displayName ?? '사용자',
+          authorPhotoUrl: user.photoURL,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
           tags: _tags.toList(),
           rating: _rating,
         );
 
-        // TODO: 실제 저장 로직 구현
-        await Future.delayed(const Duration(seconds: 1));
+        // Firestore에 포스트 저장
+        await FirebaseFirestore.instance
+            .collection('posts')
+            .doc(_tempPostId)
+            .set(post.toJson());
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('저장되었습니다')),
           );
+          // 저장 성공 후 포스트 상세 화면으로 이동
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PostDetailScreen(postId: _tempPostId),
+              ),
+            );
+          }
         }
       } catch (e) {
         if (mounted) {
@@ -91,11 +122,43 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     }
   }
 
+  Future<void> _pickAndUploadMedia({required bool isVideo}) async {
+    try {
+      final XFile? pickedFile = isVideo
+          ? await ImagePicker().pickVideo(source: ImageSource.gallery)
+          : await ImagePicker().pickImage(source: ImageSource.gallery);
+
+      if (pickedFile == null) return;
+
+      final file = File(pickedFile.path);
+      // MediaService를 사용하여 파일 업로드
+      // 예시: await _mediaService.uploadMedia(file);
+
+      // 업로드 후 추가적인 처리
+      // 예시: setState(() { _uploadedMedia.add(file); });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('업로드 실패: $e')),
+      );
+    }
+  }
+
+  void _handleImageUpload() async {
+    // 이미지 업로드 기능 구현
+    await _pickAndUploadMedia(isVideo: false);
+  }
+
+  void _handleVideoUpload() async {
+    // 영상 업로드 기능 구현
+    await _pickAndUploadMedia(isVideo: true);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('새 글 작성'),
+        leading: null,
+        title: const Text(''),
         centerTitle: true,
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
@@ -151,9 +214,18 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             ),
             const Divider(height: 1),
             Expanded(
-              child: MarkdownEditor(
-                onChanged: (value) => _content = value,
-                label: '당신의 여정을 들려주세요!',
+              child: Column(
+                children: [
+                  Expanded(
+                    child: MarkdownEditor(
+                      onChanged: (value) => _content = value,
+                      onImageUpload: () => _pickAndUploadMedia(isVideo: false),
+                      onVideoUpload: () => _pickAndUploadMedia(isVideo: true),
+                      label: '당신의 여정을 들려주세요!',
+                      postId: _tempPostId,
+                    ),
+                  ),
+                ],
               ),
             ),
             Container(

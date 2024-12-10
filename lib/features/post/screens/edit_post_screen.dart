@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/post_model.dart';
-import '../services/post_service.dart';
-import '../widgets/post_editor.dart';
-import 'package:provider/provider.dart';
+import '../widgets/markdown_editor.dart';
 
 class EditPostScreen extends StatefulWidget {
   final PostModel post;
@@ -17,116 +16,118 @@ class EditPostScreen extends StatefulWidget {
 }
 
 class _EditPostScreenState extends State<EditPostScreen> {
-  late final PostService _postService;
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _titleController;
+  String _content = '';
   bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
-    _postService = Provider.of<PostService>(context, listen: false);
+    _titleController = TextEditingController(text: widget.post.title);
+    _content = widget.post.content;
   }
 
-  Future<void> _handleSave(PostModel post) async {
-    if (_isSaving) return;
+  @override
+  void dispose() {
+    _titleController.dispose();
+    super.dispose();
+  }
 
-    try {
-      setState(() => _isSaving = true);
+  Future<void> _handleSave() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      setState(() {
+        _isSaving = true;
+      });
 
-      await _postService.updatePost(post);
+      try {
+        await FirebaseFirestore.instance
+            .collection('posts')
+            .doc(widget.post.id)
+            .update({
+          'title': _titleController.text,
+          'content': _content,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
 
-      if (!mounted) return;
-      Navigator.pop(context, true);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('포스트가 수정되었습니다.')),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('포스트 수정에 실패했습니다.')),
-      );
-    } finally {
-      if (mounted) {
-        setState(() => _isSaving = false);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('수정되었습니다')),
+          );
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('수정 실패: $e')),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isSaving = false;
+          });
+        }
       }
-    }
-  }
-
-  Future<void> _handleDelete() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('포스트 삭제'),
-        content: const Text('정말로 이 포스트를 삭제하시겠습니까?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              '삭제',
-              style: TextStyle(color: Colors.red),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true) return;
-
-    try {
-      await _postService.deletePost(widget.post.id);
-
-      if (!mounted) return;
-      Navigator.pop(context, true);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('포스트가 삭제되었습니다.')),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('포스트 삭제에 실패했습니다.')),
-      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('포스트 수정'),
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: _handleDelete,
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: PostEditor(
-              initialPost: widget.post,
-              onSave: _handleSave,
-              onCancel: () => Navigator.pop(context),
-            ),
-          ),
-          if (_isSaving)
-            const Positioned.fill(
-              child: ColoredBox(
-                color: Colors.black26,
-                child: Center(
-                  child: CircularProgressIndicator(),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '포스트 수정',
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
+                TextButton.icon(
+                  onPressed: _isSaving ? null : _handleSave,
+                  icon: const Icon(Icons.save_outlined),
+                  label: _isSaving
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('저장'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: TextFormField(
+                controller: _titleController,
+                decoration: const InputDecoration(
+                  labelText: '제목',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return '제목을 입력해주세요';
+                  }
+                  return null;
+                },
               ),
             ),
-        ],
+            Expanded(
+              child: MarkdownEditor(
+                initialValue: widget.post.content,
+                onChanged: (value) => _content = value,
+                onImageUpload: () {},
+                onVideoUpload: () {},
+                postId: widget.post.id,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

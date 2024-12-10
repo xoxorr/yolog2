@@ -19,7 +19,6 @@ class Routes {
   static const String settings = '/settings';
   static const String profileScreen = '/profile/main';
 
-  // initial route 추가
   static const String initial = home;
 
   static Map<String, WidgetBuilder> getRoutes() {
@@ -35,14 +34,12 @@ class Routes {
     };
   }
 
-  // onGenerateRoute 추가
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     return MaterialPageRoute(
       builder: (context) => const HomeScreen(),
     );
   }
 
-  // onUnknownRoute 추가
   static Route<dynamic>? onUnknownRoute(RouteSettings settings) {
     return MaterialPageRoute(
       builder: (context) => const HomeScreen(),
